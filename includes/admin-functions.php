@@ -152,7 +152,7 @@ function calendar_admin_page()
                 <label for="category">Category</label>
                 <select name="category" id="category" required>
                     <?php
-                    foreach (CATEGORIES as $value => $display) {
+                    foreach ($GLOBALS['CATEGORIES'] as $value => $display) {
                         $selected = $event && $value === $event->category ? 'selected' : '';
                         echo "<option value=\"{$value}\" {$selected}>{$display}</option>";
                     }
@@ -217,7 +217,7 @@ function calendar_admin_page()
                             }
                             ?>
                         </td>
-                        <td><?php echo esc_html(CATEGORIES[$event->category] ?? $event->category); ?></td>
+                        <td><?php echo esc_html($GLOBALS['CATEGORIES'][$event->category] ?? $event->category); ?></td>
                         <td><?php echo esc_html($event->location); ?></td>
                         <td><?php echo esc_html($event->description); ?></td>
                         <td><?php echo esc_html($event->url); ?></td>

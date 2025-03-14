@@ -26,10 +26,10 @@ function calendar_template_redirect()
         global $wpdb;
         $table_name = $wpdb->prefix . "simple_calendar";
 
-        if (array_key_exists($calendar_category, CATEGORIES)) {
-                    $category = CATEGORIES[$calendar_category] . " Course Calendar";
+        if (array_key_exists($calendar_category, $GLOBALS['CATEGORIES'])) {
+                    $category = $GLOBALS['CATEGORIES'][$calendar_category] . " Course Calendar";
         } else {
-            $category = CATEGORIES["dan-international"] . " Course Calendar (all)";
+            $category = $GLOBALS['CATEGORIES']["dan-international"] . " Course Calendar (all)";
         }
 
         // Special case for all calendars

@@ -12,17 +12,9 @@ if (!defined('ABSPATH')) {
 
 define('SC_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('SC_PLUGIN_URL', plugin_dir_url(__FILE__));
-define(
-    'CATEGORIES', [
-        'dan-international' => 'D.A.N. International',
-        'danbw' => 'D.A.N. Baden-Württemberg',
-        'dan-in-bayern' => 'D.A.N. in Bayern',
-        'dan-berlin' => 'Aikido Dahmeland, Berlin',
-        'dan-allgaeu' => 'D.A.N. im Allgäu',
-        'dan-belgium' => 'Club Horizon, Brussels',
-        'dan-england' => 'D.A.N. England',
-    ]
-);
+$config = include(SC_PLUGIN_DIR . 'config.php');
+$GLOBALS['CATEGORIES'] = $config['categories'];
+
 
 require_once SC_PLUGIN_DIR . 'includes/activation.php';
 require_once SC_PLUGIN_DIR . 'includes/admin-functions.php';
