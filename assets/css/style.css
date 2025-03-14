@@ -1,0 +1,30 @@
+.sc-event-table {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 100%;
+}
+.sc-event-header,
+.sc-event-row {
+  display: flex;
+  flex-wrap: wrap;
+  border-bottom: 1px solid #ddd;
+  padding: 10px;
+  font-weight: bold;
+}
+.sc-event-row {
+  font-weight: normal;
+}
+.sc-event-header div,
+.sc-event-row div {
+  flex: 1;
+  min-width: 100px;
+  text-align: center;
+}
+@media (max-width: 600px) {
+  .sc-event-header,
+  .sc-event-row {
+    flex-direction: column;
+    text-align: left;
+  }
+}

@@ -1,0 +1,9 @@
+.sc-event-form {
+  display: flex !important;
+  flex-direction: column;
+  max-width: 25%;
+}
+
+.sc-event-form label {
+  margin-top: 1rem;
+}
