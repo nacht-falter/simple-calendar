@@ -21,22 +21,20 @@ add_filter('query_vars', 'calendar_register_query_vars');
 function calendar_template_redirect()
 {
     $calendar_category = get_query_var('calendar_category');
-
     if ($calendar_category) {
         global $wpdb;
         $table_name = $wpdb->prefix . "simple_calendar";
-
         if (array_key_exists($calendar_category, $GLOBALS['CATEGORIES'])) {
-                    $category = $GLOBALS['CATEGORIES'][$calendar_category] . " Course Calendar";
+            $category = $GLOBALS['CATEGORIES'][$calendar_category] . " Course Calendar";
         } else {
             $category = $GLOBALS['CATEGORIES']["dan-international"] . " Course Calendar (all)";
         }
-
         // Special case for all calendars
-        $category_filter = ($calendar_category !== 'all') ? 
+        $category_filter = ($calendar_category !== 'all') ?
             $wpdb->prepare("AND category = %s", $calendar_category) : "";
-
         $events = $wpdb->get_results("SELECT * FROM $table_name WHERE published = 1 $category_filter ORDER BY start_time ASC");
+
+        $wp_timezone = wp_timezone_string();
 
         header('Content-Type: text/calendar; charset=utf-8');
         header('Content-Disposition: inline; filename="' . sanitize_file_name($calendar_category) . '.ics"');
@@ -47,31 +45,83 @@ function calendar_template_redirect()
         echo "CALSCALE:GREGORIAN\r\n";
         echo "METHOD:PUBLISH\r\n";
         echo "X-WR-CALNAME:" . $category ."\r\n";
-        echo "X-WR-TIMEZONE:UTC\r\n";
+        echo "X-WR-TIMEZONE:" . $wp_timezone . "\r\n";
+
+        echo "BEGIN:VTIMEZONE\r\n";
+        echo "TZID:" . $wp_timezone . "\r\n";
+
+        $year = date('Y');
+
+        // Daylight saving time
+        echo "BEGIN:DAYLIGHT\r\n";
+        echo "DTSTART:" . $year . "0331T020000\r\n";
+        echo "TZOFFSETFROM:+0100\r\n";
+        echo "TZOFFSETTO:+0200\r\n";
+        echo "TZNAME:CEST\r\n";
+        echo "END:DAYLIGHT\r\n";
+
+        // Standard time
+        echo "BEGIN:STANDARD\r\n";
+        echo "DTSTART:" . $year . "1027T030000\r\n";
+        echo "TZOFFSETFROM:+0200\r\n";
+        echo "TZOFFSETTO:+0100\r\n";
+        echo "TZNAME:CET\r\n";
+        echo "END:STANDARD\r\n";
+
+        echo "END:VTIMEZONE\r\n";
 
         foreach ($events as $event) {
             $dtstamp = gmdate('Ymd\THis\Z');
-
             echo "BEGIN:VEVENT\r\n";
-            echo "UID:$event->uuid\r\n";
-            echo "DTSTAMP:$dtstamp\r\n";
-            echo "SUMMARY:" . esc_html($event->title) . "\r\n";
+            echo "UID:" . $event->uuid . "\r\n";
+            echo "DTSTAMP:" . $dtstamp . "\r\n";
+            echo "SUMMARY:" . ical_escape($event->title) . "\r\n";
+
             if ($event->all_day) {
-                echo "DTSTART;VALUE=DATE:" . date('Ymd', strtotime($event->start_time)) . "\n";
-                echo "DTEND;VALUE=DATE:" . date('Ymd', strtotime($event->end_time)) . "\n";
+                $start_date = date('Ymd', strtotime($event->start_time));
+
+                $end_date = date('Ymd', strtotime($event->end_time . ' +1 day'));
+
+                echo "DTSTART;VALUE=DATE:" . $start_date . "\r\n";
+                echo "DTEND;VALUE=DATE:" . $end_date . "\r\n";
             } else {
-                echo "DTSTART:" . gmdate('Ymd\THis\Z', strtotime($event->start_time)) . "\r\n";
-                echo "DTEND:" . gmdate('Ymd\THis\Z', strtotime($event->end_time)) . "\r\n";
+                $start_datetime = new DateTime($event->start_time, new DateTimeZone($wp_timezone));
+                $end_datetime = new DateTime($event->end_time, new DateTimeZone($wp_timezone));
+
+                echo "DTSTART;TZID=" . $wp_timezone . ":" . $start_datetime->format('Ymd\THis') . "\r\n";
+                echo "DTEND;TZID=" . $wp_timezone . ":" . $end_datetime->format('Ymd\THis') . "\r\n";
             }
-            echo "LOCATION:" . esc_html($event->location) . "\r\n";
-            echo "DESCRIPTION:" . esc_html($event->description) . "\r\n";
-            echo "CATEGORIES:" . esc_html($event->category) . "\r\n";
-            echo "URL:" . esc_html($event->url) . "\r\n";
+
+            if (!empty($event->location)) {
+                echo "LOCATION:" . ical_escape($event->location) . "\r\n";
+            }
+
+            if (!empty($event->description)) {
+                echo "DESCRIPTION:" . ical_escape($event->description) . "\r\n";
+            }
+
+            if (!empty($event->category)) {
+                echo "CATEGORIES:" . ical_escape($event->category) . "\r\n";
+            }
+
+            if (!empty($event->url)) {
+                echo "URL:" . ical_escape($event->url) . "\r\n";
+            }
+
             echo "END:VEVENT\r\n";
         }
-
         echo "END:VCALENDAR\r\n";
         exit;
     }
 }
 add_action('template_redirect', 'calendar_template_redirect');
+
+function ical_escape($text)
+{
+    $text = str_replace("\\", "\\\\", $text);
+    $text = str_replace("\n", "\\n", $text);
+    $text = str_replace("\r", "", $text);
+    $text = str_replace(",", "\\,", $text);
+    $text = str_replace(";", "\\;", $text);
+    return $text;
+}
