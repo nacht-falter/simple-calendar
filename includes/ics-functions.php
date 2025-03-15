@@ -56,8 +56,13 @@ function calendar_template_redirect()
             echo "UID:$event->uuid\r\n";
             echo "DTSTAMP:$dtstamp\r\n";
             echo "SUMMARY:" . esc_html($event->title) . "\r\n";
-            echo "DTSTART:" . gmdate('Ymd\THis\Z', strtotime($event->start_time)) . "\r\n";
-            echo "DTEND:" . gmdate('Ymd\THis\Z', strtotime($event->end_time)) . "\r\n";
+            if ($event->all_day) {
+                echo "DTSTART;VALUE=DATE:" . date('Ymd', strtotime($event->start_time)) . "\n";
+                echo "DTEND;VALUE=DATE:" . date('Ymd', strtotime($event->end_time)) . "\n";
+            } else {
+                echo "DTSTART:" . gmdate('Ymd\THis\Z', strtotime($event->start_time)) . "\r\n";
+                echo "DTEND:" . gmdate('Ymd\THis\Z', strtotime($event->end_time)) . "\r\n";
+            }
             echo "LOCATION:" . esc_html($event->location) . "\r\n";
             echo "DESCRIPTION:" . esc_html($event->description) . "\r\n";
             echo "CATEGORIES:" . esc_html($event->category) . "\r\n";

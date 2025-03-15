@@ -11,7 +11,7 @@ function calendar_create_table()
         title VARCHAR(255) NOT NULL,
         start_time DATETIME NOT NULL,
         end_time DATETIME NOT NULL,
-        all_day TINYINT(1) DEFAULT 0,
+        all_day TINYINT(1) DEFAULT 1,
         location VARCHAR(255),
         description TEXT,
         category VARCHAR(255) NOT NULL,

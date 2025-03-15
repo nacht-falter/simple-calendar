@@ -130,7 +130,7 @@ function calendar_admin_page()
                 ?>
 
                 <label for="all_day">
-                    <input type="checkbox" name="all_day" id="all_day" <?php echo $is_all_day ? 'checked' : ''; ?> onchange="toggleTimeInputs()"> All Day Event
+                    <input type="checkbox" name="all_day" id="all_day" <?php echo ($event && !$event->all_day) ? '' : 'checked'; ?> onchange="toggleTimeInputs()"> All Day Event
                 </label>
 
                 <label for="start_time">Start Time</label>
