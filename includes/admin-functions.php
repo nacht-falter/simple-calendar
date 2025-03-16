@@ -1,9 +1,18 @@
 <?php
+function check_calendar_permissions($nonce_name = 'calendar_nonce', $nonce_action = 'calendar_action', $capability = 'manage_calendars')
+{
+    if (!current_user_can($capability)) {
+        wp_die(__('You do not have permission to perform this action.'));
+    }
+
+    if (!isset($_REQUEST[$nonce_name]) || !wp_verify_nonce($_REQUEST[$nonce_name], $nonce_action)) {
+        wp_die(__('Security check failed.'));
+    }
+}
+
 function calendar_form_handler()
 {
-    if (!isset($_POST['calendar_nonce']) || !wp_verify_nonce($_POST['calendar_nonce'], 'calendar_action')) {
-        wp_die('Security check failed');
-    }
+    check_calendar_permissions();
     
     global $wpdb;
     $table_name = $wpdb->prefix . "simple_calendar";
@@ -59,9 +68,7 @@ add_action('admin_post_save_calendar_event', 'calendar_form_handler');
 
 function calendar_delete_handler()
 {
-    if (!isset($_GET['calendar_nonce']) || !wp_verify_nonce($_GET['calendar_nonce'], 'calendar_delete')) {
-        wp_die('Security check failed');
-    }
+    check_calendar_permissions();
     
     global $wpdb;
     $table_name = $wpdb->prefix . "simple_calendar";
@@ -80,9 +87,9 @@ function calendar_admin_page()
     $table_name = $wpdb->prefix . "simple_calendar";
     
     if (!current_user_can('manage_calendars')) {
-        wp_die(__('You do not have sufficient permissions.'));
+        wp_die(__('You do not have permission to perform this action.'));
     }
-    
+
     $event = null;
     if (isset($_GET['edit']) && is_numeric($_GET['edit'])) {
         $event = $wpdb->get_row($wpdb->prepare("SELECT * FROM $table_name WHERE id = %d", intval($_GET['edit'])));
