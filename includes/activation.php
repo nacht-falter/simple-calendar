@@ -33,11 +33,13 @@ function calendar_activate()
         );
     }
 
-    $role = get_role('calendar-admin');
-    $role->add_cap('manage_calendars');
-    $admin_role = get_role('administrator');
+    // add manage_calendars capability to roles
+    $roles = ['calendar-admin', 'administrator', 'editor'];
 
-    if ($admin_role) {
-        $admin_role->add_cap('manage_calendars');
+    foreach ($roles as $role_name) {
+        $role = get_role($role_name);
+        if ($role) {
+            $role->add_cap('manage_calendars');
+        }
     }
 }
