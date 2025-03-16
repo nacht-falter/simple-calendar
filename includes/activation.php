@@ -24,12 +24,12 @@ function calendar_activate()
     dbDelta($sql);
 
     // Add calendar-admin role
-    $editor = get_role('editor');
+    $subscriber = get_role('subscriber');
     if (!get_role('calendar-admin')) {
         add_role(
             'calendar-admin',
             'Calendar Admin',
-            $editor->capabilities
+            $subscriber->capabilities
         );
     }
 
