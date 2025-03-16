@@ -51,8 +51,8 @@ add_action('wp_enqueue_scripts', 'calendar_enqueue_frontend_styles');
 
 function calendar_admin_menu()
 {
-    add_menu_page('Simple Calendar', 'Simple Calendar', 'manage_options', 'simple-calendar', 'calendar_admin_page');
+    add_menu_page('Simple Calendar', 'Simple Calendar', 'manage_calendars', 'simple-calendar', 'calendar_admin_page');
 }
 add_action('admin_menu', 'calendar_admin_menu');
 
-register_activation_hook(__FILE__, 'calendar_create_table');
+register_activation_hook(__FILE__, 'calendar_activate');

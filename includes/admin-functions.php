@@ -79,7 +79,7 @@ function calendar_admin_page()
     global $wpdb;
     $table_name = $wpdb->prefix . "simple_calendar";
     
-    if (!current_user_can('manage_options')) {
+    if (!current_user_can('manage_calendars')) {
         wp_die(__('You do not have sufficient permissions.'));
     }
     
