@@ -1,9 +1,35 @@
 .sc-event-form {
   display: flex !important;
   flex-direction: column;
-  max-width: 25%;
+  max-width: 500px;
+}
+
+@media (max-width: 768px) {
+  .sc-event-form {
+    max-width: 100%;
+  }
 }
 
 .sc-event-form label {
   margin-top: 1rem;
+}
+
+.sc-btn-container {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.sc-info-box {
+  margin-top: 1rem !important;
+}
+
+.sc-info-box ul {
+  list-style-type: disc;
+  padding-left: 20px;
+  margin-bottom: 10px;
+}
+.sc-info-box ul ul {
+  list-style-type: circle;
+  padding-left: 20px;
 }

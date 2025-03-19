@@ -294,15 +294,15 @@ function calendar_admin_page()
 
 
                 <label for="location">Location</label>
-                <input type="text" name="location" id="location" placeholder="Course Location" value="<?php echo esc_attr($event ? $event->location : ''); ?>">
-                
+                <input type="text" name="location" id="location" placeholder="Event Location" value="<?php echo esc_attr($event ? $event->location : ''); ?>">
+
                 <label for="description">Event Description</label>
-                <textarea name="description" id="description" placeholder="Instructor: Name"><?php echo esc_textarea($event ? $event->description : ''); ?></textarea>
-                <small>Please include the instructor(s) in the description like this: "Instructor(s): Name(s)"</small>
-                
+                <textarea name="description" id="description" placeholder="Instructor Name"><?php echo esc_textarea($event ? $event->description : ''); ?></textarea>
+                <small>Please include the instructor(s) in the description.</small>
+
                 <label for="url">URL</label>
                 <input type="text" name="url" id="url" placeholder="Event Website" value="<?php echo esc_attr($event ? $event->url : ''); ?>">
-                
+
                 <label for="category">Category</label>
                 <select name="category" id="category" required>
                     <?php
