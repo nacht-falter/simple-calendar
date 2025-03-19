@@ -1,0 +1,3 @@
+title;start_time;end_time;all_day;location;description;organizer;url;published
+Example All Day Event;2025-01-29;2025-01-31;true;Example Location;Instructor: Name;dan_international;https://example.com;true
+Example Timed Event;2025-02-01 09:00:00;2025-02-01 17:00:00;false;Example Location;Instructor: Name;danbw;https://example.com;false
