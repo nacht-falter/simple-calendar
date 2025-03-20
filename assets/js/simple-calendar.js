@@ -13,8 +13,8 @@ function toggleTimeInputs() {
       endTimeInput.type = "date";
 
       // Keep the part (YYYY-MM-DD)
-      startTimeInput.value = startValue.split('T')[0];
-      endTimeInput.value = endValue.split('T')[0];
+      startTimeInput.value = startValue.split("T")[0];
+      endTimeInput.value = endValue.split("T")[0];
     } else {
       // Change back to datetime-local inputs
       startTimeInput.type = "datetime-local";
@@ -35,5 +35,20 @@ function toggleTimeInputs() {
 document.addEventListener("DOMContentLoaded", function () {
   if (document.getElementById("all_day")) {
     toggleTimeInputs();
+  }
+
+  if (document.getElementById("sc-event-table")) {
+    new DataTable("#sc-event-table", {
+      paging: true,
+      searching: true,
+      ordering: true,
+      responsive: true,
+      order: [[1, "desc"]],
+      pageLength: 10,
+      lengthMenu: [10, 25, 50, 100],
+      columnDefs: [
+        { targets: 8, orderable: false }, // Disable sorting for actions column
+      ],
+    });
   }
 });

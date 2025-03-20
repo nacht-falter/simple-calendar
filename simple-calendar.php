@@ -12,7 +12,7 @@ if (!defined('ABSPATH')) {
 
 define('SC_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('SC_PLUGIN_URL', plugin_dir_url(__FILE__));
-$config = include(SC_PLUGIN_DIR . 'config.php');
+$config = include SC_PLUGIN_DIR . 'config.php';
 $GLOBALS['ORGANIZATIONS'] = $config['organizations'];
 
 require_once SC_PLUGIN_DIR . 'includes/activation.php';
@@ -25,7 +25,7 @@ function calendar_enqueue_assets($hook)
     if ('toplevel_page_simple-calendar' !== $hook) {
         return;
     }
-    
+
     wp_enqueue_script(
         'simple-calendar-admin-js',
         SC_PLUGIN_URL . 'assets/js/simple-calendar.js',
@@ -37,10 +37,24 @@ function calendar_enqueue_assets($hook)
         'simple-calendar-admin-styles',
         SC_PLUGIN_URL . 'assets/css/admin-styles.css'
     );
+
+    wp_enqueue_style(
+        'datatables-css',
+        SC_PLUGIN_URL . 'assets/css/datatables.min.css'
+    );
+
+    wp_enqueue_script(
+        'datatables-js',
+        SC_PLUGIN_URL . 'assets/js/datatables.min.js',
+        array('jquery'),
+        '1.13.6',
+        true
+    );
 }
 add_action('admin_enqueue_scripts', 'calendar_enqueue_assets');
 
-function calendar_enqueue_frontend_styles() {
+function calendar_enqueue_frontend_styles()
+{
     wp_enqueue_style(
         'simple-calendar-styles',
         SC_PLUGIN_URL . 'assets/css/style.css'

@@ -34,3 +34,13 @@
   list-style-type: circle;
   padding-left: 20px;
 }
+
+#dt-length-0 {
+  min-width: 55px;
+  background-color: #fcfcfc;
+}
+
+#dt-search-0 {
+  background-color: #fcfcfc;
+  height: 2rem;
+}
