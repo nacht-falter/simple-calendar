@@ -195,7 +195,6 @@ function csv_import_handler()
                 $error_messages[] = "Error in row {$row_counter}: {$wpdb->last_error}.";
                 $skipped_count++;
             } else {
-                $error_messages[] = "Error in row {$row_counter}: Event already exists.";
                 $skipped_count++;
             }
         } else {
@@ -309,7 +308,7 @@ function calendar_admin_page()
                 <input type="text" name="location" id="location" placeholder="Event Location" value="<?php echo esc_attr($event ? $event->location : ''); ?>">
 
                 <label for="description">Event Description</label>
-                <textarea name="description" id="description" placeholder="Instructor Name"><?php echo esc_textarea($event ? $event->description : ''); ?></textarea>
+                <textarea name="description" id="description" placeholder="Description"><?php echo esc_textarea($event ? $event->description : ''); ?></textarea>
                 <small>Please include the instructor(s) in the description.</small>
 
                 <label for="url">URL</label>

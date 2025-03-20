@@ -19,7 +19,7 @@ function calendar_activate()
         published TINYINT(1) DEFAULT 1,
         created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         last_modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        uuid VARCHAR(36) NOT NULL UNIQUE
+        uuid VARCHAR(36) NOT NULL UNIQUE,
         UNIQUE KEY unique_event (title, start_time, end_time, organizer)
     ) $charset_collate;";
 
