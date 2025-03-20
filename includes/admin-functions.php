@@ -128,16 +128,20 @@ function csv_import_handler()
     $imported_count = 0;
     $updated_count = 0;
     $skipped_count = 0;
+    $error_messages = [];
+    $row_counter = 1;
 
     while (($row = fgetcsv($file, 0, ';')) !== false) {
+        $row_counter++;
         $data = [];
 
         foreach ($expected_headers as $column) {
             $data[$column] = isset($header_map[$column]) ? sanitize_text_field($row[$header_map[$column]]) : '';
         }
 
-        if (in_array('', $data, true)) {
+        if (!array_key_exists($data['organizer'], $GLOBALS['ORGANIZATIONS'])) {
             $skipped_count++;
+            $error_messages[] = "Error in row {$row_counter}: Unkown organizer.";
             continue;
         }
 
@@ -149,6 +153,7 @@ function csv_import_handler()
                 $timestamp = strtotime($data[$date_field]);
                 if ($timestamp === false) {
                     $skipped_count++;
+                    $error_messages[] = "Error in row {$row_counter}: Wrong date format.";
                     continue 2;
                 }
                 $data[$date_field] = date('Y-m-d H:i:s', $timestamp);
@@ -162,8 +167,17 @@ function csv_import_handler()
             )
         );
 
+        // Convert empty strings to null for proper database operations
+        foreach ($data as $key => $value) {
+            if ($value === '') {
+                $data[$key] = null;
+            }
+        }
+
+        $wpdb->hide_errors();
+
         if ($existing_event) {
-            $result = $wpdb->update(
+            $wpdb->update(
                 $table_name,
                 [
                     'location' => $data['location'],
@@ -177,7 +191,11 @@ function csv_import_handler()
 
             if ($wpdb->rows_affected > 0) {
                 $updated_count++;
+            } elseif ($wpdb->last_error) {
+                $error_messages[] = "Error in row {$row_counter}: {$wpdb->last_error}.";
+                $skipped_count++;
             } else {
+                $error_messages[] = "Error in row {$row_counter}: Event already exists.";
                 $skipped_count++;
             }
         } else {
@@ -195,32 +213,26 @@ function csv_import_handler()
             if ($wpdb->rows_affected > 0) {
                 $imported_count++;
             } else {
+                $error_messages[] = "Error in row {$row_counter}: {$wpdb->last_error}.";
                 $skipped_count++;
-                error_log('Failed to insert new event: ' . $wpdb->last_error);
             }
         }
     }
 
     fclose($file);
 
-    if ($wpdb->last_error) {
-        error_log('Database Error in CSV Import: ' . $wpdb->last_error);
-        wp_die('Database Error: ' . $wpdb->last_error);
-    } else {
-        $redirect_url = add_query_arg(
-            [
-                'import_status' => 'success',
-                'imported' => $imported_count,
-                'updated' => $updated_count,
-                'skipped' => $skipped_count,
-                'filename' => $filename
-            ],
-            admin_url('admin.php?page=simple-calendar')
-        );
+    $import_status = [
+        'filename' => $filename,
+        'imported' => $imported_count,
+        'updated'  => $updated_count,
+        'skipped'  => $skipped_count,
+        'errors'   => $error_messages,
+        ];
 
-        wp_redirect($redirect_url);
-        exit;
-    }
+    set_transient('sc_import_status', $import_status, 0);
+
+    wp_safe_redirect(admin_url('admin.php?page=simple-calendar'));
+    exit;
 }
 add_action('admin_post_import_csv', 'csv_import_handler');
 
@@ -366,19 +378,30 @@ function calendar_admin_page()
             </form>
 
         <?php else:
-            if (isset($_GET['import_status']) && $_GET['import_status'] === 'success') {
-                $filename = ($_GET['filename']);
-                $imported = isset($_GET['imported']) ? intval($_GET['imported']) : 0;
-                $updated = isset($_GET['updated']) ? intval($_GET['updated']) : 0;
-                $skipped = isset($_GET['skipped']) ? intval($_GET['skipped']) : 0;
+            $import_status = get_transient('sc_import_status');
+
+            if ($import_status) {
+                ob_start();
+
                 echo '<div class="updated notice">';
-                echo '<p>Imported File: ' . $filename . '</p>';
+                echo '<p><strong>Imported File:</strong> ' . esc_html($import_status['filename']) . '</p>';
                 echo '<table style="text-align: left;">';
-                echo '<tr><td>Imported events:</td><td><strong>' . $imported . '</strong></td></tr>';
-                echo '<tr><td>Updated events:</td><td><strong>' . $updated . '</strong></td></tr>';
-                echo '<tr><td>Skipped rows:</td><td><strong>' . $skipped . '</strong></td></tr>';
+                echo '<tr><td>Imported events:</td><td><strong>' . intval($import_status['imported']) . '</strong></td></tr>';
+                echo '<tr><td>Updated events:</td><td><strong>' . intval($import_status['updated']) . '</strong></td></tr>';
+                echo '<tr><td>Skipped rows:</td><td><strong>' . intval($import_status['skipped']) . '</strong></td></tr>';
                 echo '</table>';
                 echo '</div>';
+
+                if (!empty($import_status['errors'])) {
+                    echo '<div class="notice notice-error">';
+                    echo '<p><strong>Error(s) occurred during the import:</strong></p>';
+                    echo '<p>' . nl2br(esc_html(implode("\n", $import_status['errors']))) . '</p>';
+                    echo '</div>';
+                }
+
+                delete_transient('sc_import_status');
+
+                ob_end_flush();
             }
             ?>
             <div class="sc-btn-container">
