@@ -108,6 +108,12 @@ function calendar_template_redirect()
                 echo "URL:" . ical_escape($event->url) . "\r\n";
             }
 
+            $created = new DateTime($event->created, new DateTimeZone('UTC'));
+            $last_modified = new DateTime($event->last_modified, new DateTimeZone('UTC'));
+
+            echo "CREATED:" . $created->format('Ymd\THis\Z') . "\r\n";
+            echo "LAST-MODIFIED:" . $last_modified->format('Ymd\THis\Z') . "\r\n";
+
             echo "END:VEVENT\r\n";
         }
         echo "END:VCALENDAR\r\n";
