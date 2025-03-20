@@ -3,7 +3,7 @@ function calendar_add_rewrite_rule()
 {
     add_rewrite_rule(
         '^calendar/([^/]+)$',
-        'index.php?calendar_category=$matches[1]',
+        'index.php?calendar_organizer=$matches[1]',
         'top'
     );
 }
@@ -12,7 +12,7 @@ add_action('init', 'calendar_add_rewrite_rule');
 // Register query vars
 function calendar_register_query_vars($vars)
 {
-    $vars[] = 'calendar_category';
+    $vars[] = 'calendar_organizer';
     return $vars;
 }
 add_filter('query_vars', 'calendar_register_query_vars');
@@ -20,31 +20,31 @@ add_filter('query_vars', 'calendar_register_query_vars');
 // Handle custom endpoint
 function calendar_template_redirect()
 {
-    $calendar_category = get_query_var('calendar_category');
-    if ($calendar_category) {
+    $calendar_organizer = get_query_var('calendar_organizer');
+    if ($calendar_organizer) {
         global $wpdb;
         $table_name = $wpdb->prefix . "simple_calendar";
-        if (array_key_exists($calendar_category, $GLOBALS['CATEGORIES'])) {
-            $category = $GLOBALS['CATEGORIES'][$calendar_category] . " Course Calendar";
+        if (array_key_exists($calendar_organizer, $GLOBALS['ORGANIZATIONS'])) {
+            $organizer = $GLOBALS['ORGANIZATIONS'][$calendar_organizer] . " Course Calendar";
         } else {
-            $category = $GLOBALS['CATEGORIES']["dan-international"] . " Course Calendar (all)";
+            $organizer = $GLOBALS['ORGANIZATIONS']["dan-international"] . " Course Calendar (all)";
         }
         // Special case for all calendars
-        $category_filter = ($calendar_category !== 'all') ?
-            $wpdb->prepare("AND category = %s", $calendar_category) : "";
-        $events = $wpdb->get_results("SELECT * FROM $table_name WHERE published = 1 $category_filter ORDER BY start_time ASC");
+        $organizer_filter = ($calendar_organizer !== 'all') ?
+            $wpdb->prepare("AND organizer = %s", $calendar_organizer) : "";
+        $events = $wpdb->get_results("SELECT * FROM $table_name WHERE published = 1 $organizer_filter ORDER BY start_time ASC");
 
         $wp_timezone = wp_timezone_string();
 
         header('Content-Type: text/calendar; charset=utf-8');
-        header('Content-Disposition: inline; filename="' . sanitize_file_name($calendar_category) . '.ics"');
+        header('Content-Disposition: inline; filename="' . sanitize_file_name($calendar_organizer) . '.ics"');
 
         echo "BEGIN:VCALENDAR\r\n";
         echo "VERSION:2.0\r\n";
         echo "PRODID:-//Simple Calendar//NONSGML v1.0//EN\r\n";
         echo "CALSCALE:GREGORIAN\r\n";
         echo "METHOD:PUBLISH\r\n";
-        echo "X-WR-CALNAME:" . $category ."\r\n";
+        echo "X-WR-CALNAME:" . $organizer ."\r\n";
         echo "X-WR-TIMEZONE:" . $wp_timezone . "\r\n";
 
         echo "BEGIN:VTIMEZONE\r\n";
@@ -100,8 +100,8 @@ function calendar_template_redirect()
                 echo "DESCRIPTION:" . ical_escape($event->description) . "\r\n";
             }
 
-            if (!empty($event->category)) {
-                echo "CATEGORIES:" . ical_escape($event->category) . "\r\n";
+            if (!empty($event->organizer)) {
+                echo "ORGANIZER:" . ical_escape($event->organizer) . "\r\n";
             }
 
             if (!empty($event->url)) {

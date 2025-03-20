@@ -13,8 +13,7 @@ if (!defined('ABSPATH')) {
 define('SC_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('SC_PLUGIN_URL', plugin_dir_url(__FILE__));
 $config = include(SC_PLUGIN_DIR . 'config.php');
-$GLOBALS['CATEGORIES'] = $config['categories'];
-
+$GLOBALS['ORGANIZATIONS'] = $config['organizations'];
 
 require_once SC_PLUGIN_DIR . 'includes/activation.php';
 require_once SC_PLUGIN_DIR . 'includes/admin-functions.php';

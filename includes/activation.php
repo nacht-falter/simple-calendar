@@ -14,12 +14,13 @@ function calendar_activate()
         all_day TINYINT(1) DEFAULT 1,
         location VARCHAR(255),
         description TEXT,
-        category VARCHAR(255) NOT NULL,
+        organizer VARCHAR(255) NOT NULL,
         url VARCHAR(255),
         published TINYINT(1) DEFAULT 1,
         uuid VARCHAR(36) NOT NULL UNIQUE
+        UNIQUE KEY unique_event (title, start_time, end_time, organizer)
     ) $charset_collate;";
-    
+
     include_once ABSPATH . "wp-admin/includes/upgrade.php";
     dbDelta($sql);
 

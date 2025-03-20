@@ -23,7 +23,7 @@ function calendar_form_handler()
     $end_time = sanitize_text_field($_POST['end_time']);
     $location = sanitize_text_field($_POST['location']);
     $description = sanitize_textarea_field($_POST['description']);
-    $category = sanitize_text_field($_POST['category']);
+    $organizer = sanitize_text_field($_POST['organizer']);
     $url = sanitize_text_field($_POST['url']);
     $published = isset($_POST['published']) ? 1 : 0;
 
@@ -44,7 +44,7 @@ function calendar_form_handler()
 
         $wpdb->update(
             $table_name,
-            compact('title', 'all_day', 'start_time', 'end_time', 'description', 'location', 'url', 'category', 'published', 'uuid'),
+            compact('title', 'all_day', 'start_time', 'end_time', 'description', 'location', 'url', 'organizer', 'published', 'uuid'),
             ['id' => $event_id]
         );
         $message = 'Event updated successfully';
@@ -57,7 +57,7 @@ function calendar_form_handler()
             mt_rand(0, 0x3fff) | 0x8000,
             mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff)
         );
-        $wpdb->insert($table_name, compact('title', 'all_day', 'start_time', 'end_time', 'description', 'location', 'url', 'category', 'published', 'uuid'));
+        $wpdb->insert($table_name, compact('title', 'all_day', 'start_time', 'end_time', 'description', 'location', 'url', 'organizer', 'published', 'uuid'));
         $message = 'Event created successfully';
     }
 
@@ -105,7 +105,7 @@ function csv_import_handler()
     global $wpdb;
     $table_name = $wpdb->prefix . 'simple_calendar';
 
-    $expected_headers = ['title', 'start_time', 'end_time', 'all_day', 'location', 'description', 'category', 'url', 'published'];
+    $expected_headers = ['title', 'start_time', 'end_time', 'all_day', 'location', 'description', 'organizer', 'url', 'published'];
 
     $csv_headers = fgetcsv($file, 0, ';');
     if (!$csv_headers) {
@@ -157,8 +157,8 @@ function csv_import_handler()
 
         $existing_event = $wpdb->get_var(
             $wpdb->prepare(
-                "SELECT id FROM {$table_name} WHERE title = %s AND start_time = %s AND end_time = %s AND category = %s LIMIT 1",
-                $data['title'], $data['start_time'], $data['end_time'], $data['category']
+                "SELECT id FROM {$table_name} WHERE title = %s AND start_time = %s AND end_time = %s AND organizer = %s LIMIT 1",
+                $data['title'], $data['start_time'], $data['end_time'], $data['organizer']
             )
         );
 
@@ -303,11 +303,11 @@ function calendar_admin_page()
                 <label for="url">URL</label>
                 <input type="text" name="url" id="url" placeholder="Event Website" value="<?php echo esc_attr($event ? $event->url : ''); ?>">
 
-                <label for="category">Category</label>
-                <select name="category" id="category" required>
+                <label for="organizer">Organizer</label>
+                <select name="organizer" id="organizer" required>
                     <?php
-                    foreach ($GLOBALS['CATEGORIES'] as $value => $display) {
-                        $selected = $event && $value === $event->category ? 'selected' : '';
+                    foreach ($GLOBALS['ORGANIZATIONS'] as $value => $display) {
+                        $selected = $event && $value === $event->organizer ? 'selected' : '';
                         echo "<option value=\"{$value}\" {$selected}>{$display}</option>";
                     }
                     ?>
@@ -337,7 +337,7 @@ function calendar_admin_page()
                 <div class="notice notice-info inline sc-info-box">
                     <h4>CSV File Format Information</h4>
                     <p>You can upload a CSV file with the following column headers:</p>
-                    <pre><code>title;start_time;end_time;all_day;location;description;category;url;published</code></pre>
+                    <pre><code>title;start_time;end_time;all_day;location;description;organizer;url;published</code></pre>
 
                     <p>
                         <a href="<?php echo esc_url(plugins_url('../assets/example.csv', __FILE__)); ?>" class="">
@@ -349,9 +349,9 @@ function calendar_admin_page()
                     <ul>
                         <li>Please use semicolons (';') as delimiter.</li>
                         <li>
-                            An event's category determines in which calendar the event appears.
-                            Please use the appropriate category from the following list:
-                            <ul class="sc-category-list">
+                            Each organizer has their own calendar feed.
+                            Please use the appropriate organizer key from the following list:
+                            <ul class="sc-organizer-list">
                                 <li>dan-international</li>
                                 <li>dan-belgium</li>
                                 <li>danbw</li>
@@ -393,7 +393,7 @@ function calendar_admin_page()
                         <th>Title</th>
                         <th>Start</th>
                         <th>End</th>
-                        <th>Category</th>
+                        <th>Organizer</th>
                         <th>Location</th>
                         <th>Description</th>
                         <th>URL</th>
@@ -431,7 +431,7 @@ function calendar_admin_page()
                             }
                             ?>
                         </td>
-                        <td><?php echo esc_html($GLOBALS['CATEGORIES'][$event->category] ?? $event->category); ?></td>
+                        <td><?php echo esc_html($GLOBALS['ORGANIZATIONS'][$event->organizer] ?? $event->organizer); ?></td>
                         <td><?php echo esc_html($event->location); ?></td>
                         <td><?php echo esc_html($event->description); ?></td>
                         <td><?php echo esc_html($event->url); ?></td>

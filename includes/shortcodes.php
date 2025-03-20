@@ -4,11 +4,11 @@ function calendar_display_events($atts)
     global $wpdb;
     $table_name = $wpdb->prefix . "simple_calendar";
 
-    $category_filter = isset($atts['category']) ? sanitize_text_field($atts['category']) : '';
+    $organizer_filter = isset($atts['organizer']) ? sanitize_text_field($atts['organizer']) : '';
 
     $query = "SELECT * FROM $table_name WHERE published = 1";
-    if ($category_filter) {
-        $query .= $wpdb->prepare(" AND category = %s", $category_filter);
+    if ($organizer_filter) {
+        $query .= $wpdb->prepare(" AND organizer = %s", $organizer_filter);
     }
     $query .= " ORDER BY start_time ASC";
 
@@ -23,7 +23,7 @@ function calendar_display_events($atts)
     <div class="sc-event-list">
         <div class="sc-event-header">
             <div>Title</div>
-            <div>Category</div>
+            <div>Organizer</div>
             <div>Start Time</div>
             <div>End Time</div>
             <div>Location</div>
@@ -31,7 +31,7 @@ function calendar_display_events($atts)
         <?php foreach ($events as $event) : ?>
             <div class="sc-event-row">
                 <div><?php echo esc_html($event->title); ?></div>
-                <div><?php echo esc_html($event->category); ?></div>
+                <div><?php echo esc_html($event->organizer); ?></div>
                 <div><?php echo date('M d, Y H:i', strtotime($event->start_time)); ?></div>
                 <div><?php echo date('M d, Y H:i', strtotime($event->end_time)); ?></div>
                 <div><?php echo esc_html($event->location); ?></div>
