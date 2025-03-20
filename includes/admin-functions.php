@@ -409,7 +409,7 @@ function calendar_admin_page()
             </div>
 
             <h3>Existing Events</h3>
-            <table id="sc-event-table" class="sc-event-table widefat striped">
+            <table id="sc-event-table" class="sc-event-table widefat striped display hover">
                 <thead>
                     <tr>
                         <th>Title</th>
